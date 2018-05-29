@@ -1,0 +1,59 @@
+{
+  "project_info": {
+    "project_number": "979880855600",
+    "firebase_url": "https://adopta-un-perro-f61fd.firebaseio.com",
+    "project_id": "adopta-un-perro-f61fd",
+    "storage_bucket": "adopta-un-perro-f61fd.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:979880855600:android:89e2dfa610f807f3",
+        "android_client_info": {
+          "package_name": "com.deathstudio.marcos.adoptaunperro"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "979880855600-1ljloch8ae8u9jd5a9od2qg7sk96scih.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.deathstudio.marcos.adoptaunperro",
+            "certificate_hash": "0d2fddbe462e554682e6e0277333830f43d930d1"
+          }
+        },
+        {
+          "client_id": "979880855600-6miqdtd84sp6ofum9mnseti6d0jvo6jb.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "979880855600-6miqdtd84sp6ofum9mnseti6d0jvo6jb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyByA1Mq4JaddWgldfEFlAUNKizXU9iZG9Y"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "979880855600-6miqdtd84sp6ofum9mnseti6d0jvo6jb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
