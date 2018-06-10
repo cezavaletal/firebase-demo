@@ -4,28 +4,40 @@ import android.net.Uri;
 
 public class Publicacion {
 
-    private Uri imagen;
+    private String uid;
+    private String fotoPublicacion;
     private String genero;
     private int edad;
     private String telefono;
     private String descripcion;
+    private String fecha;
 
     public Publicacion(){}
 
-    public Publicacion(Uri imagen, String genero, int edad, String telefono, String descripcion) {
-        this.imagen = imagen;
+    public Publicacion(String uid, String fotoPublicacion, String genero, int edad, String telefono, String descripcion, String fecha) {
+        this.uid = uid;
+        this.fotoPublicacion = fotoPublicacion;
         this.genero = genero;
         this.edad = edad;
         this.telefono = telefono;
         this.descripcion = descripcion;
+        this.fecha = fecha;
     }
 
-    public Uri getImagen() {
-        return imagen;
+    public String getUid() {
+        return uid;
     }
 
-    public void setImagen(Uri imagen) {
-        this.imagen = imagen;
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
+
+    public String getFotoPublicacion() {
+        return fotoPublicacion;
+    }
+
+    public void setFotoPublicacion(String fotoPublicacion) {
+        this.fotoPublicacion = fotoPublicacion;
     }
 
     public String getGenero() {
@@ -58,5 +70,13 @@ public class Publicacion {
 
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
+    }
+
+    public String getFecha() {
+        return fecha;
+    }
+
+    public void setFecha(String fecha) {
+        this.fecha = fecha;
     }
 }

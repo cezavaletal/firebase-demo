@@ -17,6 +17,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.RequestOptions;
+import com.deathstudio.marcos.adoptaunperro.pojo.Usuario;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -55,7 +56,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.security.AuthProvider;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -67,7 +70,6 @@ import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOption
 
 public class LoginActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener,View.OnClickListener{
 
-
     @BindView(R.id.khe) GifImageView progressBar2;
     @BindView(R.id.facebookView) Button botonIniciarFB;
     @BindView(R.id.loginButton) LoginButton loginButton;
@@ -78,7 +80,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     private FirebaseAuth firebaseAuth;
     private FirebaseAuth.AuthStateListener firebaseAuthListener;
     private static final int RC_SIGN_IN = 9001;
-
 
 
     @Override
@@ -101,12 +102,13 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
             @Override
             public void onCancel() {
-                Toast.makeText(getApplicationContext(), R.string.cancel_login, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(), R.string.cancel_login, Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onError(FacebookException error) {
                 Toast.makeText(getApplicationContext(), R.string.error_login, Toast.LENGTH_SHORT).show();
+                Log.d("cagandola",error.getMessage());
             }
         });
         botonIniciarFB.setOnClickListener(this);
@@ -163,7 +165,54 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
             if(result.isSuccess()){
                 GoogleSignInAccount result1 = result.getSignInAccount();
-                handleGoogle(result1);
+                String s = result.getSignInAccount().getEmail();
+                Log.d("verificandooooooo",s);
+                FirebaseDatabase.getInstance().getReference().child("usuarios")
+                        //.orderByChild("proveedor")
+                        .addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                                List<String> usuarios = new ArrayList<>();
+                                List<String> proo = new ArrayList<>();
+                                for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
+                                    Usuario usuario = childSnapshot.getValue(Usuario.class);
+                                    if (usuario.getCorreo().equals(s) ){
+                                    usuarios.add(usuario.getCorreo());
+                                    proo.add(usuario.getProveedor());}
+                                }
+                                Log.d("verificandooooooo", String.valueOf(usuarios));
+                                Log.d("verificandooooooo", String.valueOf(proo));
+                                String proveedor = "google.com";
+
+                                if (usuarios.contains(s) && !proo.contains(proveedor)){
+                                    Toast.makeText(getApplicationContext(),"El correo que está usando ya esta en uso , por favor use otro", Toast.LENGTH_LONG).show();
+                                    Log.d("verificandooooooo", "El correo que está usando ya esta en uso");
+                                }else{
+                                    Log.d("verificandooooooo", "Se puede registrar");
+                                    handleGoogle(result1);
+                                }
+
+                                /*if (s.equals(childSnapshot.child("correo").getValue(String.class))) {
+                                    Toast.makeText(getApplicationContext(),"El correo que está usando ya esta en uso , por favor use otro", Toast.LENGTH_LONG).show();
+                                    Log.d("verificandooooooo", "Correo es igual al de " + childSnapshot.child("nombre").getValue(String.class));
+                                }else{
+                                    //handleGoogle(result1);
+                                    Log.d("verificandooooooo", "Se puede registrar");
+                                }*/
+
+                                // usuarios ahora contiene los nombres de todos los usuarios.
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+
+
+
+                //handleGoogle(result1);
             }
         }else{
             callbackManager.onActivityResult(requestCode, resultCode, data);
@@ -195,17 +244,19 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
         AuthCredential credential = FacebookAuthProvider.getCredential(accessToken.getToken());
 
-        Toast.makeText(getApplicationContext(),String.valueOf(FacebookAuthProvider.PROVIDER_ID), Toast.LENGTH_LONG).show();
+        //Toast.makeText(getApplicationContext(),String.valueOf(FacebookAuthProvider.PROVIDER_ID), Toast.LENGTH_LONG).show();
         firebaseAuth.signInWithCredential(credential).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if(task.isSuccessful()){
                     String facebookUserId="";
+
                     FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                     DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("usuarios");
                     DatabaseReference currentUserDB = databaseReference.child(firebaseAuth.getCurrentUser().getUid());
                     currentUserDB.child("nombre").setValue(user.getDisplayName());
                     currentUserDB.child("correo").setValue(user.getEmail());
+
 
                     for(UserInfo profile : user.getProviderData()) {
                         // verifica si el id coincide en fb
@@ -217,7 +268,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                     String photoUrll = "https://graph.facebook.com/" + facebookUserId + "/picture?height=500";
                     currentUserDB.child("foto").setValue(photoUrll);
                     currentUserDB.child("proveedor").setValue(FacebookAuthProvider.PROVIDER_ID);
-                    currentUserDB.child("uid").setValue(user.getUid());
 
                 }else if(task.getException() instanceof FirebaseAuthUserCollisionException){
                     Toast.makeText(getApplicationContext(),"El correo que está usando ya esta en uso , por favor use otro", Toast.LENGTH_LONG).show();
@@ -226,7 +276,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
                 progressBar2.setVisibility(View.GONE);
                 botonIniciarFB.setVisibility(View.VISIBLE);
-                signInButton.setVisibility(View.VISIBLE);
+                botonGoogle.setVisibility(View.VISIBLE);
             }
         });
     }
@@ -255,15 +305,15 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()){
+
                     FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                     DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("usuarios");
                     DatabaseReference currentUserDB = databaseReference.child(firebaseAuth.getCurrentUser().getUid());
                     currentUserDB.child("nombre").setValue(user.getDisplayName());
                     currentUserDB.child("correo").setValue(user.getEmail());
+                    currentUserDB.child("foto").setValue(user.getPhotoUrl().toString());
+                    currentUserDB.child("proveedor").setValue(GoogleAuthProvider.PROVIDER_ID.toString());
 
-                    currentUserDB.child("foto").setValue(user.getPhotoUrl());
-                    currentUserDB.child("proveedor").setValue(GoogleAuthProvider.PROVIDER_ID);
-                    currentUserDB.child("uid").setValue(user.getUid());
                 }else if(task.getException() instanceof FirebaseAuthUserCollisionException){
                     Toast.makeText(getApplicationContext(),"El correo ya esta en uso , por favor use otro", Toast.LENGTH_LONG).show();
                     FirebaseAuth.getInstance().signOut();
@@ -278,7 +328,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult){
-        Toast.makeText(getApplicationContext(),"La putamadre",Toast.LENGTH_LONG).show();
+        //Toast.makeText(getApplicationContext(),"La putamadre",Toast.LENGTH_LONG).show();
     }
 
 
@@ -291,7 +341,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.facebookView : loginButton.performClick(); break;
-            case R.id.googleButton : iniciarSesion();break;
+            case R.id.googleButton : iniciarSesion();
             case R.id.googleView : iniciarSesion(); break;
         }
     }

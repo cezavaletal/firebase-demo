@@ -31,26 +31,42 @@
                 android:layout_marginLeft="5dp"
                 android:layout_marginTop="5dp"
                 android:layout_marginBottom="5dp"
-                android:layout_width="45dp"
-                android:layout_height="45dp"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
                 app:border_color="@android:color/white"
                 app:border_width="1dp"/>
 
-                <TextView
-                    android:id="@+id/nombrePublicador"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Nombre"
-                    android:paddingLeft="20sp"
-                    android:textStyle="bold"
-                    android:textColor="#000"
-                    android:typeface="sans"
-                    android:layout_gravity="center_vertical"/>
+                <LinearLayout
+                    android:layout_gravity="center"
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
 
+                    <TextView
+                        android:id="@+id/nombrePublicador"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Nombre"
+                        android:paddingLeft="20sp"
+                        android:textStyle="bold"
+                        android:textColor="#000"
+                        android:typeface="sans"
+                        android:layout_gravity="center_vertical"/>
+                    <TextView
+                        android:id="@+id/fecha"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Fecha"
+                        android:paddingLeft="20sp"
+                        android:textStyle="bold"
+                        android:textColor="#000"
+                        android:typeface="sans"
+                        android:layout_gravity="center_vertical"/>
+                </LinearLayout>
             </LinearLayout>
 
             <ImageView
-                android:src="@drawable/placeholder"
+                android:src="@drawable/subirfoto"
                 android:id="@+id/foto"
                 android:layout_width="match_parent"
                 android:layout_height="260dp"
