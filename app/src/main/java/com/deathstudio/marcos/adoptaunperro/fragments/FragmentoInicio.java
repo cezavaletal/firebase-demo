@@ -35,6 +35,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -76,18 +77,13 @@ public class FragmentoInicio extends Fragment {
 
         View view = inflater.inflate(R.layout.fragmento_inicio, container, false);
         //final SwipeRefreshLayout swipeView = view.findViewById(R.id.swipe_container);
-
-        context = container.getContext();
-
-        firebaseAuth = FirebaseAuth.getInstance();
+        FirebaseMessaging.getInstance().subscribeToTopic("pushNotifications");
         recyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
+        context = container.getContext();
+        publicacionList = new ArrayList<>();
+        firebaseAuth = FirebaseAuth.getInstance();
 
-
-        idUsuario = firebaseAuth.getCurrentUser().getUid();
-        mDatabase = FirebaseDatabase.getInstance().getReference("publicaciones");
-        DatabaseReference currentUserDB = mDatabase.child("publicaciones");
-        //Query query = currentUserDB.child("genero");//.equalTo("masculino");  //currentUserDB.orderByChild("genero").equalTo("masculino");
-
+        adaptadorPublicacion = new AdaptadorPublicacion(publicacionList,getContext());
 
         LinearLayoutManager llm = new LinearLayoutManager(getContext());
         llm.setReverseLayout(true);
@@ -95,32 +91,35 @@ public class FragmentoInicio extends Fragment {
         llm.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(llm);
 
-        publicacionList = new ArrayList<>();
-
-        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
-        adaptadorPublicacion = new AdaptadorPublicacion(publicacionList,getContext());
-
         recyclerView.setAdapter(adaptadorPublicacion);
 
+        idUsuario = firebaseAuth.getCurrentUser().getUid();
+//        DatabaseReference currentUserDB = mDatabase.child("publicaciones");
+        //Query query = currentUserDB.child("genero");//.equalTo("masculino");  //currentUserDB.orderByChild("genero").equalTo("masculino");
 
-        mDatabase.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                publicacionList.clear();
-                for (DataSnapshot i: dataSnapshot.getChildren()){
-                    Publicacion publicacion = i.getValue(Publicacion.class);
-                    publicacionList.add(publicacion);
+        if (firebaseAuth.getCurrentUser() != null){
+            mDatabase = FirebaseDatabase.getInstance().getReference("publicaciones");
+
+            mDatabase.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    publicacionList.clear();
+                    for (DataSnapshot i: dataSnapshot.getChildren()){
+                        Publicacion publicacion = i.getValue(Publicacion.class);
+                        publicacionList.add(publicacion);
+                    }
+                    adaptadorPublicacion.notifyDataSetChanged();
+                    /*adaptadorPublicacion = new AdaptadorPublicacion(publicacionList,getContext());
+                    recyclerView.setAdapter(adaptadorPublicacion);*/
+
                 }
-                adaptadorPublicacion = new AdaptadorPublicacion(publicacionList,getContext());
-                recyclerView.setAdapter(adaptadorPublicacion);
-                adaptadorPublicacion.notifyDataSetChanged();
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
 
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
+                }
+            });
 
-            }
-        });
+        }
 
         /*if (existeConexionInternet()) {
 

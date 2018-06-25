@@ -65,6 +65,7 @@ import com.google.firebase.auth.FirebaseAuth;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
@@ -96,7 +97,7 @@ public class FragmentoPublicarAnuncio extends Fragment {
     static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yyyy");
     static SimpleDateFormat simpleDateFormatHora = new SimpleDateFormat("HH:mm");
     private static final int PICK_IMAGE = 1;
-    public static String estaaa;  // jajaja buena varialejadsjjbsa
+    public static String imagenrecibida;
     private FirebaseAuth firebaseAuth;
     StorageReference firebaseStorage;
     StorageReference storagePath;
@@ -107,7 +108,7 @@ public class FragmentoPublicarAnuncio extends Fragment {
     Spinner genero;
     EditText edad,telefono,descripcion;
     Button publcar;
-    int totalProgressTime = 0;
+
     String[] opciones = {"Macho","Hembra"};
 
     //////////////////////////////////////////////////////////////////////////////
@@ -123,9 +124,7 @@ public class FragmentoPublicarAnuncio extends Fragment {
 
 
 
-    public FragmentoPublicarAnuncio() {
-        // Required empty public constructor
-    }
+    public FragmentoPublicarAnuncio(){}
 
 
     @Override
@@ -148,29 +147,7 @@ public class FragmentoPublicarAnuncio extends Fragment {
 
 
 
-        ////////////////////////////////////////////////////////////
-
         listString = new ArrayList<String>();
-
-        /*tts = new TextToSpeech(getContext(), new TextToSpeech.OnInitListener() {
-            @Override
-            public void onInit(int status) {
-                if (status == TextToSpeech.SUCCESS){
-                    int result = tts.setLanguage(Locale.US);
-                    Log.d("idioma",String.valueOf(result));
-
-                    if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED){
-                        //this language not supported
-                    }
-
-
-                }else{
-                    //error
-                    Log.d("idioma","ERROR");
-                }
-
-            }
-        });*/
 
 
         imagen.setOnClickListener(new View.OnClickListener() {
@@ -202,20 +179,20 @@ public class FragmentoPublicarAnuncio extends Fragment {
                 obj.setEdad(Integer.parseInt(edad.getText().toString()));
                 obj.setTelefono( String.valueOf(telefono.getText()));
 
-                obj.setFotoPublicacion(estaaa);
+                obj.setFotoPublicacion(imagenrecibida);
 
                 Configuracion.LIST_PUB.add(obj);
 
                 //nombre de imagen
                 String [] filePathColumn = {MediaStore.Images.Media.DATA};
-                Cursor cursor = getActivity().getContentResolver().query(Uri.parse(estaaa), filePathColumn, null, null, null);
+                Cursor cursor = getActivity().getContentResolver().query(Uri.parse(imagenrecibida), filePathColumn, null, null, null);
                 cursor.moveToFirst();
                 int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
                 String filePath = cursor.getString(columnIndex);
                 cursor.close();
 
                 String selectedImages = filePath.substring(filePath.lastIndexOf("/")+1);
-
+////////////////////////////////////////////////////////////////////////////////////////////////////////
                 dialog = new ProgressDialog(getContext());
 
                 dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
@@ -225,10 +202,10 @@ public class FragmentoPublicarAnuncio extends Fragment {
 
                 dialog.setCancelable(false);
                 dialog.show();
-
+////////////////////////////////
                 storagePath = firebaseStorage.child("publicacion_imagenes").child(selectedImages);
-
-                storagePath.putFile(Uri.parse(estaaa)).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+////////////////////////////////
+                storagePath.putFile(Uri.parse(imagenrecibida)).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
 
@@ -245,7 +222,7 @@ public class FragmentoPublicarAnuncio extends Fragment {
                                     calendar.get(Calendar.MINUTE);
                                     DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("publicaciones").push();
                                     //DatabaseReference currentUserDB = databaseReference.child(idUsuario).child("publicaciones").push();
-                                    Log.d("ojete",databaseReference.child(idUsuario).child("publicaciones").push().getKey());
+                                    Log.d("tag",databaseReference.child(idUsuario).child("publicaciones").push().getKey());
 
                                     databaseReference.child("fecha").setValue(simpleDateFormat.format(calendar.getTime()));
                                     databaseReference.child("hora").setValue(simpleDateFormatHora.format(new Date()));
@@ -260,7 +237,7 @@ public class FragmentoPublicarAnuncio extends Fragment {
 
                                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                                     startActivity(intent);
-
+                                    FirebaseMessaging.getInstance().unsubscribeFromTopic("pushNotifications");
                                 }
                             }).addOnFailureListener(new OnFailureListener() {
                                 @Override
@@ -283,18 +260,23 @@ public class FragmentoPublicarAnuncio extends Fragment {
 
                         int currentprogress = (int) progress;
 
-                            dialog.setProgress(currentprogress);
+                        dialog.setProgress(currentprogress);
 
                     }
                 });
 
-
-
-                //agregar();
             }
         });
 
         return view;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (dialog!=null && dialog.isShowing()){
+            dialog.dismiss();
+        }
     }
 
     private void openGallery(){
@@ -311,7 +293,8 @@ public class FragmentoPublicarAnuncio extends Fragment {
             Glide.with(getContext())
                     .load(imageUri)
                     .into(imagen);
-            estaaa = String.valueOf(imageUri);
+
+            imagenrecibida = String.valueOf(imageUri);
 
             verificarImagen(imageUri);
         }

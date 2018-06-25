@@ -1,6 +1,7 @@
 package com.deathstudio.marcos.adoptaunperro;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -54,6 +55,12 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.WriterException;
+import com.google.zxing.common.BitMatrix;
+import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 import java.security.AuthProvider;
 import java.util.ArrayList;
@@ -143,7 +150,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     }
 
     /*****************************************************************************************
-     *  Si está logueado ya no lo mandamos al login >:v
+     *  Si está logueado ya no lo mandamos al login
      ****************************************************************************************/
 
     @Override
@@ -225,7 +232,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
     private void irPantallaPrincipal() {
         Intent intent = new Intent(this, MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
         finish();
     }
@@ -268,7 +275,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                     String photoUrll = "https://graph.facebook.com/" + facebookUserId + "/picture?height=500";
                     currentUserDB.child("foto").setValue(photoUrll);
                     currentUserDB.child("proveedor").setValue(FacebookAuthProvider.PROVIDER_ID);
-
+                    currentUserDB.child("token").setValue(FirebaseInstanceId.getInstance().getToken());
                 }else if(task.getException() instanceof FirebaseAuthUserCollisionException){
                     Toast.makeText(getApplicationContext(),"El correo que está usando ya esta en uso , por favor use otro", Toast.LENGTH_LONG).show();
                     LoginManager.getInstance().logOut();
@@ -313,6 +320,10 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                     currentUserDB.child("correo").setValue(user.getEmail());
                     currentUserDB.child("foto").setValue(user.getPhotoUrl().toString());
                     currentUserDB.child("proveedor").setValue(GoogleAuthProvider.PROVIDER_ID.toString());
+                    currentUserDB.child("token").setValue(FirebaseInstanceId.getInstance().getToken());
+
+
+
 
                 }else if(task.getException() instanceof FirebaseAuthUserCollisionException){
                     Toast.makeText(getApplicationContext(),"El correo ya esta en uso , por favor use otro", Toast.LENGTH_LONG).show();
@@ -333,9 +344,9 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
 
 
-    /********************************************
-     *              Solo clicks :v
-     ********************************************/
+    /******************************************************
+     *              Captura de evento OnClick
+     ******************************************************/
 
     @Override
     public void onClick(View view) {

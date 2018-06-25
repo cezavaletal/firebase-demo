@@ -17,6 +17,10 @@
             android:icon="@drawable/ic_menu_slideshow"
             android:title="Mis Publicaciones" />
         <item
+            android:id="@+id/nav_mi_perfil"
+            android:icon="@drawable/ic_menu_slideshow"
+            android:title="Mi Perfil" />
+        <item
             android:id="@+id/nav_chat"
             android:icon="@drawable/ic_menu_share"
             android:title="Consultas" />

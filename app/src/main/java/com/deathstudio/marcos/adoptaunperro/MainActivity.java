@@ -20,6 +20,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.deathstudio.marcos.adoptaunperro.Configuracion.Configuracion;
 import com.deathstudio.marcos.adoptaunperro.fragments.FragmentChatConsultas;
+import com.deathstudio.marcos.adoptaunperro.fragments.FragmentPerfil;
 import com.deathstudio.marcos.adoptaunperro.fragments.FragmentoInicio;
 import com.deathstudio.marcos.adoptaunperro.fragments.FragmentoPublicarAnuncio;
 import com.deathstudio.marcos.adoptaunperro.pojo.Usuario;
@@ -31,8 +32,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.messaging.FirebaseMessaging;
+
 import butterknife.BindView;
-import butterknife.BindViews;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -57,6 +59,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawerConfig();
         seleccionarItem();
         obtenerDatosDeUsuario();
+
+
     }
 
     /*****************************************************************************
@@ -177,6 +181,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }else if (id == R.id.nav_chat){
             setTitle("Chat Consultas");
             fragmentManager.beginTransaction().replace(R.id.content_fragment, new FragmentChatConsultas()).commit();
+        }else if (id == R.id.nav_mi_perfil){
+            setTitle("Mi Perfil");
+            fragmentManager.beginTransaction().replace(R.id.content_fragment, new FragmentPerfil()).commit();
         }else if (id == R.id.salir){
             cerrarSesion();
         }
